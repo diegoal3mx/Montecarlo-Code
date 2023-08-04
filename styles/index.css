@@ -1,0 +1,101 @@
+*{
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+body{
+    background-color: #182628;
+}
+
+#container{
+    margin: 3rem auto;
+    display: flex;
+    justify-content: center;
+}
+
+.nav{
+    background-color: #57ba98;
+}
+
+#txtOutput{
+    margin: 0.5rem auto;
+    display: flex;
+    justify-content: center;
+    width: 60%;
+    background-color: #10191b;
+    color: white;
+    border:  2px solid rgba(0, 0, 0, 0.55);
+    border-radius: 4px;
+    outline: none !important;
+}
+
+#languageDropDownMenu, #themeDropDownMenu{
+    font: inherit;
+    padding: 0.5rem 1.5rem;
+    background-color: transparent;
+    border: 2px solid rgba(0, 0, 0, 0.55);
+    border-radius: 4px;
+    color: rgba(0, 0, 0, 0.55);
+    margin: 0 0.5rem;
+    outline: none !important;
+}
+nav ul li a{
+    color: white;
+}
+
+button{
+    cursor: pointer;
+    font: inherit;
+    padding: 0.5rem 0.5rem;
+    color: white;
+    border-radius: 4px;
+    margin: 0 0.5rem;
+}
+
+.bluebtn{
+    background-color: transparent;
+    border: 2px solid rgba(0, 0, 0, 0.55);
+    transition: all 300ms ease-out;
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.bluebtn:hover{
+    background-color: rgba(0, 0, 0, 0.55);
+    border: 2px solid rgba(0, 0, 0, 0.55);
+    transition: all 500ms ease-out;
+    color: white;
+}
+
+.greenbtn{
+    background-color: transparent;
+    border: 2px solid rgba(0, 0, 0, 0.55);
+    transition: all 300ms ease-out;
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.greenbtn:hover{
+    background-color: #3b945e;
+    border: 2px solid #3b945e;
+    transition: all 500ms ease-out;
+    color: white;
+}
+
+
+@media all and (min-width: 800px) {
+    #container {
+      width: 90%;
+    }
+}
+.toast-close {
+
+    background-color: red !important;;
+}
+
+#filename{
+    color: white;
+    margin-top: 50px;
+    margin-left: 25%;
+    background-color: #23603b;
+    border-radius: 3px;
+    width: fit-content;
+}

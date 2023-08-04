@@ -1,0 +1,339 @@
+<html>
+	<head>
+		<title>Montecarlo Editor</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" href="styles/bootstrap.css">
+    <link rel="stylesheet" href="styles/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="js/bootstrap.bundle.js"></script>
+
+    <script>
+     window.nodeRequire=require;
+     delete window.require;
+     delete window.exports;
+     delete window.module;
+
+      </script>
+	</head>
+	<body>
+<!-- Buttons of editor-->
+    <nav class="navbar navbar-expand-lg nav">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <img src="imgs/mfinal.png" alt="Logo" height="60">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li>
+              <select name="Language" id="languageDropDownMenu" onchange="getSelectedLanguage()">
+                <option value="" disabled selected>Select language</option>
+                <option value="java">Java</option>
+                <option value="javascript">Javascript</option>
+                <option value="c">C</option>
+                <option value="c2">C++</option>
+                <option value="python">Python</option>
+                <option value="html">HTML</option>
+              </select>
+            </li>
+            <li>
+              <select name="Tema" id="themeDropDownMenu" onchange="getSelectedTheme()">
+                <option value="" disabled selected>Select theme</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="hclight">High Contrast Light</option>
+                <option value="hcdark">High Contrast Dark</option>
+              </select>
+            </li>
+          </ul>
+          <div class="buttons">
+            <button class="bluebtn" onclick="onOpenFile()" accesskey="o">Open File</button>
+            <button class="bluebtn" onclick="onSaveFile()" accesskey="s">Save File</button>
+            <button class="greenbtn" onclick="onRun()" accesskey="e">Run</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <p id="filename"> <!-- Will take value from opened file-->
+    </p>
+  <!-- Code editor starts -->
+
+		<div id="container" style="width: 600px; height: 300px; border: 1px solid grey"></div>
+
+
+    <div style="margin-top: 10px;"></div>
+    <div id="content"></div>
+    <div style="clear: both; height: 10px"></div>
+    <textarea name="txtContent" id="txtOutput" cols="30" rows="10" readonly></textarea>   
+    <div style="clear: both; height: 10px"></div>
+
+  </div>
+
+
+		<script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+		<script>
+			require.config({ paths: { vs: './node_modules/monaco-editor/min/vs' } });
+
+			require(['vs/editor/editor.main'], function () {
+				var editor = monaco.editor.create(document.getElementById('container'), {
+					value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
+					language: 'javascript'
+				});
+			}); //ENDS MONACO
+
+     //Editor functions start
+
+      const {ipcRenderer} = window.nodeRequire('electron');
+      var pathFileString;
+
+
+          ipcRenderer.on('pathFile', (event,args) => {
+                pathFileString=args;
+                var pathFileArray=pathFileString.split('\\');
+                var fileName=pathFileArray[pathFileArray.length-1];
+                console.log(fileName+ " was opened");
+                document.getElementById("filename").innerHTML ="File: "+fileName;
+               
+              });
+
+
+            onOpenFile = () => {
+               ipcRenderer.send('openFile');  
+            }
+      
+            onSaveFile = () => {
+              ipcRenderer.send('saveFile',  monaco.editor.getModels()[0].getValue())
+            }
+
+            onRun=()=>{
+
+              const {c, cpp, python, java} = window.nodeRequire('compile-run');
+
+              //Get text from editor
+              var sourceCode = monaco.editor.getModels()[0].getValue();
+
+              //Verify language
+              
+              switch (getLanguage()){
+ 
+                case 'java':{
+
+                     //JAVA STARTS
+
+                     let resultPromise = java.runSource(sourceCode,{
+              compilationPath: 'C:\\Program Files\\Java\\jdk-17.0.5\\bin\\javac',
+              executionPath: 'C:\\Program Files\\Java\\jdk-17.0.5\\bin\\java'
+            }); //Promise is created and code executed
+
+            resultPromise.then(result => {       //Then executes if promise is successful
+                        console.log(result);            
+                        //Checks if it was executed with errors or not
+                        if(result.stderr==""){
+                          console.log(result.stdout);
+                          document.getElementById('txtOutput').innerHTML = result.stdout;
+                        }
+                        else{
+                          console.log(result.stderr);
+                          document.getElementById('txtOutput').innerHTML = result.stderr;
+                        }
+
+                    })
+                      .catch(err => {  //In case promise fails
+                   console.log(err);
+                   document.getElementById('txtOutput').innerHTML = 'Error' ;
+                       });
+
+                       //ENDS JAVA
+
+                }break;
+
+                case 'javascript':{
+                   //JAVASCRIPT STARTS
+
+                   //Required for preserving console
+                   var originalConsole=window.console;
+
+                   //Original console is replaced
+                   //New functions of new console
+                   window.console = {
+                  log: function(arguments){
+                    if(document.getElementById("txtOutput").innerHTML==""){
+                      document.getElementById("txtOutput").innerHTML = arguments;
+                    }
+                    else{
+                    document.getElementById("txtOutput").innerHTML += '\n'+ arguments;
+                    }
+                     },
+                    clear: function(){
+                  document.getElementById("txtOutput").innerHTML="";
+                  },
+                  error:function(arguments){
+
+                  document.getElementById("txtOutput").innerHTML += '\n'+ arguments;
+                     }
+                   }
+                    //Any previous output is cleared
+                   console.clear();
+            
+                     //Javascript execution
+
+                   try {
+                    eval(sourceCode);
+                    } catch (error) {
+                       console.error(error); //If an error ocurred, prints in custom console
+                     }
+
+                    window.console=originalConsole; //Original console is returned
+
+                     //ENDS JAVASCRIPT
+                }break;
+
+                case 'c':{
+
+                     //C STARTS
+
+                     let resultPromise = c.runSource(sourceCode); //Promise is created and code executed
+                       resultPromise.then(result => {       //Then executes if promise is successful
+                        console.log(result);            
+                        //Checks if it was executed with errors or not
+                        if(result.stderr==""){
+                          console.log(result.stdout);
+                          document.getElementById('txtOutput').innerHTML = result.stdout;
+                        }
+                        else{
+                          console.log(result.stderr);
+                          document.getElementById('txtOutput').innerHTML = result.stderr;
+                        }
+
+                    })
+                      .catch(err => {  //In case promise fails
+                   console.log(err);
+                   document.getElementById('txtOutput').innerHTML = 'Error' ;
+                       });
+
+                       //ENDS C
+
+                } break;
+
+                case 'c2':{
+                   //C STARTS
+
+                   let resultPromise = cpp.runSource(sourceCode); //Promise is created and code executed
+                       resultPromise.then(result => {       //Then executes if promise is successful
+                        console.log(result);            
+                        //Checks if it was executed with errors or not
+                        if(result.stderr==""){
+                          console.log(result.stdout);
+                          document.getElementById('txtOutput').innerHTML = result.stdout;
+                        }
+                        else{
+                          console.log(result.stderr);
+                          document.getElementById('txtOutput').innerHTML = result.stderr;
+                        }
+
+                    })
+                      .catch(err => {  //In case promise fails
+                   console.log(err);
+                   document.getElementById('txtOutput').innerHTML = 'Error' ;
+                       });
+
+                       //ENDS C
+                } break;
+
+                case 'python':{
+
+                  //PYTHON STARTS
+
+                      let resultPromise = python.runSource(sourceCode); //Promise is created and code executed
+                       resultPromise.then(result => {       //Then executes if promise is successful
+                        console.log(result);            
+                        //Checks if it was executed with errors or not
+                        if(result.stderr==""){
+                          console.log(result.stdout);
+                          document.getElementById('txtOutput').innerHTML = result.stdout;
+                        }
+                        else{
+                          console.log(result.stderr);
+                          document.getElementById('txtOutput').innerHTML = result.stderr;
+                        }
+
+                    })
+                      .catch(err => {  //In case promise fails
+                   console.log(err);
+                   document.getElementById('txtOutput').innerHTML = 'Error' ;
+                       });
+
+                       //ENDS PYTHON
+                } break;
+
+                case 'html': {
+                      //HTML STARTS
+
+                   toHtml= window.nodeRequire( 'string-to-html'); 
+
+                    const HTMLcode = toHtml(sourceCode);
+
+                 //NUEVA VENTANA 
+                
+
+               function newWindow() {
+               executedHTMLWindow = window.open("", "executedHTML", "width=400,height=400");
+               executedHTMLWindow.document.title="HTML Code executed";
+            }
+
+            newWindow();
+            HTMLWindowIsOn=true;
+
+            executedHTMLWindow.document.body.innerHTML = null;
+            executedHTMLWindow.document.body.appendChild(HTMLcode);
+             //ENDS HTML
+
+                } break;
+
+
+                default: {
+
+                 // alert('No language selected to run');
+                 Toastify({
+              text: "No language selected to run",
+              duration: 30000,
+            destination: "https://github.com/apvarun/toastify-js",
+            newWindow: true,
+              close: true,
+            gravity: "top", // `top` or `bottom`
+            position: "left", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+              background: "linear-gradient(to right, #00b09b, #96c93d)",
+                 },
+                    onClick: function(){} // Callback after click
+                }).showToast();
+                
+                };break;
+              }
+
+            }
+
+            ipcRenderer.on('filedata', (event,args) => {
+               monaco.editor.getModels()[0].setValue(args);
+            });
+
+
+            
+      
+		</script>
+    
+        <script>
+          
+         
+          </script>
+
+	</body>
+  <script src="scripts/index.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  
+</html>

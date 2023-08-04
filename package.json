@@ -1,0 +1,23 @@
+{
+  "name": "montecarlo-code-editor",
+  "version": "1.0.0",
+  "description": "Code Editor based on Monaco Editor",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "Electron app.js",
+    "start": "Electron app.js"
+  },
+  "keywords": [],
+  "author": "Ivan Campos & Diego Juarez",
+  "license": "gpl-3.0",
+  "dependencies": {
+    "compile-run": "^2.3.4",
+    "electron": "^21.2.0",
+    "execute-scripts": "^1.0.0",
+    "fs": "^0.0.1-security",
+    "monaco-editor": "^0.34.1",
+    "string-to-html": "^1.3.4",
+    "toastify-js": "^1.12.0"
+  }
+}
