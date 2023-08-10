@@ -24,7 +24,8 @@ async function createWindow () {
          webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
-         }
+         },
+        icon: 'imgs/montecarlo-icon.ico',
     });
 
     win.loadURL(
