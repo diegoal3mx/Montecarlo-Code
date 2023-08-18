@@ -16,9 +16,8 @@
 <br />
 <div align="center">
   <a href="https://github.com/diegoal3mx/Montecarlo-Code">
-    <img src="https://github.com/diegoal3mx/Montecarlo-Code/blob/main/imgs/montecarlo.png" alt="Logo" width="80" height="80">
+    <img src="imgs/montecarlo.png" alt="Logo" width="192" height="108">
   </a>
-
 <h3 align="center">Montecarlo Code</h3>
 
   <p align="center">
@@ -49,7 +48,7 @@
 
 ## About The Project
 
-[![Montecarlo Code Screen Shot][product-screenshot]](https://github.com/diegoal3mx/Montecarlo-Code/blob/master/images/Montecarlo-Code-Screenshot.png)
+![Montecarlo Code Screen Shot](imgs/Montecarlo-Code-Screenshot.png)
 
 A code editor based on Monaco Editor, supports Java, JavaScript, C, C++, Python and HTML as well as theme selection, file opening & saving, and compilation & running.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
