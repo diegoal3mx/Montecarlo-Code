@@ -25,7 +25,7 @@ async function createWindow () {
             nodeIntegration: true,
             contextIsolation: false
          },
-        icon: 'imgs/montecarlo-icon.ico',
+         icon: 'imgs/montecarlo-icon.ico',
     });
 
     win.loadURL(
